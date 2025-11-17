@@ -1,0 +1,17 @@
+# Archivos de Build de Maven
+/target/
+
+# Archivos del IDE (IntelliJ)
+.idea/
+*.iml
+
+# Archivos del Wrapper de Maven
+.mvn/
+
+# Logs
+*.log
+
+# --- ¡¡EL MÁS IMPORTANTE!! ---
+# Ignora tu archivo de configuración de base de datos
+# para no subir tu contraseña a GitHub.
+src/main/resources/db.properties

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - Agencia de Autos</title>
+    <style>
+        /* Estilos Generales */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #34495e; /* Texto principal */
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50; /* Azul oscuro */
+            border-bottom: 3px solid #3498db; /* Azul primario */
+            padding-bottom: 10px;
+        }
+
+        /* Contenedor de las tarjetas */
+        #catalogo-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px; /* Espacio entre tarjetas */
+            margin-top: 30px;
+        }
+
+        /* Estilo de cada Tarjeta de Vehículo */
+        .vehiculo-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+            width: 320px;
+            overflow: hidden; /* Para que la imagen respete los bordes redondeados */
+            transition: all 0.3s ease;
+        }
+        .vehiculo-card:hover {
+            transform: translateY(-5px); /* Efecto "levantar" */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Imagen del Vehículo */
+        .vehiculo-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover; /* Asegura que la imagen cubra el espacio sin deformarse */
+        }
+
+        /* Contenido de la tarjeta (texto) */
+        .card-info {
+            padding: 20px;
+        }
+        .card-info h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #3498db; /* Azul primario */
+            font-size: 1.4em;
+        }
+        .precio {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #2ecc71; /* Verde */
+            margin-top: 15px;
+        }
+        .detalles {
+            font-size: 0.9em;
+            color: #7f8c8d; /* Texto secundario (gris) */
+            line-height: 1.5;
+        }
+
+        /* "Etiqueta" para el estado (Nuevo, Usado) */
+        .estado {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .estado.nuevo { background-color: #e0f7fa; color: #007bff; }
+        .estado.usado { background-color: #fff8e1; color: #f57c00; }
+        .estado.reservado { background-color: #ffebee; color: #d32f2f; }
+
+        /* Mensajes de Carga o Error */
+        .mensaje-info {
+            font-size: 1.2em;
+            color: #7f8c8d;
+        }
+        .mensaje-error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Nuestro Catálogo de Vehículos</h1>
+
+<div id="catalogo-container">
+    <p class="mensaje-info">Cargando vehículos disponibles...</p>
+</div>
+
+<script>
+    // --- ¡AQUÍ OCURRE LA MAGIA! ---
+
+    // 1. Espera a que la página HTML esté lista
+    document.addEventListener("DOMContentLoaded", () => {
+        cargarVehiculos();
+    });
+
+    // 2. Función para llamar a tu API
+    async function cargarVehiculos() {
+        const container = document.getElementById('catalogo-container');
+
+        try {
+            // 3. ¡LA LLAMADA A LA API! Llama al endpoint que creaste en el Paso 6
+            //    (No necesitas poner "http://localhost:8080" porque están en el mismo servidor)
+            const response = await fetch('/api/vehiculos/catalogo');
+
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: No se pudo conectar a la API.`);
+            }
+
+            const vehiculos = await response.json();
+            container.innerHTML = ''; // Limpia el mensaje "Cargando..."
+
+            if (vehiculos.length === 0) {
+                container.innerHTML = '<p class="mensaje-info">No hay vehículos disponibles en este momento.</p>';
+                return;
+            }
+
+            // 4. Recorre el JSON (la lista de vehículos)
+            vehiculos.forEach(v => {
+                // Crea una tarjeta (div)
+                const card = document.createElement('div');
+                card.className = 'vehiculo-card';
+
+                // Define la ruta de la imagen (v.imagenPath viene del modelo/Vehiculo.java)
+                // Spring sirve todo en "static" desde la raíz "/"
+                const imgPath = v.imagenPath ? `/imagenes/${v.imagenPath}` : '/imagenes/no_image.png';
+
+                // Asigna la clase de estado (ej: "nuevo", "usado")
+                const estadoClass = v.estado.toLowerCase();
+
+                // Inserta el HTML de la tarjeta
+                card.innerHTML = `
+                    <img src="${imgPath}" alt="${v.nombreMarca}" onerror="this.src='/imagenes/no_image.png'">
+                    <div class="card-info">
+                        <span class="estado ${estadoClass}">${v.estado}</span>
+                        <h3>${v.nombreMarca} ${v.nombreModelo}</h3>
+                        <p class="detalles">
+                            <strong>Año:</strong> ${v.anio} | <strong>Color:</strong> ${v.color}<br>
+                            <strong>Km:</strong> ${v.kilometraje.toLocaleString('es-MX')}
+                        </p>
+                        <div class="precio">
+                            $${v.precio.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                    </div>
+                `;
+
+                // Añade la tarjeta al contenedor
+                container.appendChild(card);
+            });
+
+        } catch (error) {
+            // Si la API falla (ej. si olvidaste iniciarla), muestra un error
+            console.error('Error al cargar el catálogo:', error);
+            container.innerHTML = `<p class="mensaje-error">
+                                    Error al cargar el catálogo. Verifique que el servidor API esté encendido.<br>
+                                    (${error.message})
+                                   </p>`;
+        }
+    }
+</script>
+</body>
+</html>

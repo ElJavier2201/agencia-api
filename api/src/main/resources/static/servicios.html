@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - Agencia de Autos</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; color: #34495e; margin: 0; }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin: 20px; }
+        .container { padding: 20px; max-width: 1400px; margin: 0 auto; }
+        .mensaje-info, .mensaje-error { font-size: 1.2em; text-align: center; padding: 30px; }
+        .mensaje-error { color: red; font-weight: bold; }
+
+        /* --- Estilos del Header --- */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background-color: #34495e; color: white; }
+        header .logo { font-size: 1.5em; font-weight: bold; }
+        header nav a { color: white; text-decoration: none; margin-left: 20px; font-weight: 500; cursor: pointer; }
+        header nav a:hover { color: #3498db; }
+
+        /* --- Estilos de la Tarjeta de Servicio --- */
+        .servicios-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
+        .servicio-card { background-color: #ffffff; border-radius: 12px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08); overflow: hidden; display: flex; flex-direction: column; }
+        .servicio-info { padding: 20px; flex-grow: 1; }
+        .servicio-info .tipo-servicio { font-size: 0.9em; font-weight: bold; color: #3498db; text-transform: uppercase; }
+        .servicio-info h3 { margin: 5px 0 10px 0; color: #2c3e50; }
+        .servicio-info p { color: #7f8c8d; line-height: 1.5; font-size: 0.95em; }
+        .servicio-footer { display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 15px 20px; border-top: 1px solid #eee; }
+        .servicio-precio { font-size: 1.6em; font-weight: bold; color: #2ecc71; }
+        .boton-agendar { background-color: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .boton-agendar:hover { background-color: #2980b9; }
+
+        /* --- ESTILOS PARA EL MODAL DE CITA (NUEVO) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none; /* Oculto por defecto */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-agenda {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .modal-close {
+            position: absolute; top: 10px; right: 15px;
+            font-size: 2em; font-weight: bold;
+            color: #aaa; cursor: pointer;
+        }
+        .modal-close:hover { color: #333; }
+        .modal-agenda h2 { margin-top: 0; color: #3498db; }
+        .form-grupo { margin-bottom: 15px; }
+        .form-grupo label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-grupo input, .form-grupo select, .form-grupo textarea {
+            width: 95%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-family: inherit; /* Hereda la fuente del body */
+        }
+        .form-grupo input[readonly] { background-color: #f4f4f4; cursor: not-allowed; }
+        /* Layout de 2 columnas para el formulario */
+        .form-fila { display: flex; gap: 15px; }
+        .form-fila .form-grupo { flex: 1; }
+    </style>
+</head>
+<body>
+
+<header id="app-header">
+    <div class="logo">Agencia de Autos</div>
+    <nav>
+        <a href="catalogo.html">Catálogo</a>
+        <a href="servicios.html" style="color: #3498db; font-weight: bold;">Servicios</a>
+    </nav>
+</header>
+
+<main class="container">
+    <h1>Nuestros Servicios</h1>
+    <div id="servicios-container" class="servicios-container">
+        <p class="mensaje-info">Cargando servicios disponibles...</p>
+    </div>
+</main>
+
+<div id="modal-agenda" class="modal-overlay" onclick="cerrarModalAgenda(event)">
+    <div class="modal-agenda">
+        <span class="modal-close" onclick="cerrarModalAgenda()">&times;</span>
+        <h2 id="agenda-titulo">Agendar Cita</h2>
+
+        <input type="hidden" id="cita-id-servicio"> <div class="form-grupo">
+        <label>Servicio:</label>
+        <label for="cita-nombre-servicio"></label><input type="text" id="cita-nombre-servicio" readonly>
+    </div>
+
+        <div class="form-grupo">
+            <label for="cita-nombre">Nombre Completo:</label>
+            <input type="text" id="cita-nombre" placeholder="Tu nombre">
+        </div>
+
+        <div class="form-fila">
+            <div class="form-grupo">
+                <label for="cita-email">Email:</label>
+                <input type="email" id="cita-email" placeholder="tu@correo.com">
+            </div>
+            <div class="form-grupo">
+                <label for="cita-telefono">Teléfono:</label>
+                <input type="tel" id="cita-telefono" placeholder="Ej: 2221234567">
+            </div>
+        </div>
+
+        <div class="form-fila">
+            <div class="form-grupo">
+                <label for="cita-vehiculo">Vehículo:</label>
+                <input type="text" id="cita-vehiculo" placeholder="Ej: Toyota Corolla">
+            </div>
+            <div class="form-grupo">
+                <label for="cita-anio">Año:</label>
+                <input type="number" id="cita-anio" placeholder="Ej: 2020" min="1990" max="2025">
+            </div>
+        </div>
+
+        <div class="form-fila">
+            <div class="form-grupo">
+                <label for="cita-fecha">Fecha:</label>
+                <input type="date" id="cita-fecha">
+            </div>
+            <div class="form-grupo">
+                <label for="cita-hora">Hora:</label>
+                <input type="time" id="cita-hora" min="09:00" max="18:00">
+            </div>
+        </div>
+
+        <div class="form-grupo">
+            <label for="cita-comentarios">Comentarios (Opcional):</label>
+            <textarea id="cita-comentarios" rows="2" placeholder="Ej: El auto hace un ruido raro al frenar..."></textarea>
+        </div>
+
+        <button class="boton-agendar" style="width: 100%; padding: 15px; font-size: 1.1em;" onclick="confirmarCita()">Confirmar Cita</button>
+    </div>
+</div>
+
+<script>
+    // --- Referencias a los elementos del Modal ---
+    const modalAgenda = document.getElementById('modal-agenda');
+    const inputIdServicio = document.getElementById('cita-id-servicio');
+    const inputNombreServicio = document.getElementById('cita-nombre-servicio');
+    // (El resto se tomará por ID dentro de la función)
+
+    // 1. Cargar servicios al iniciar
+    document.addEventListener("DOMContentLoaded", () => {
+        cargarServicios();
+
+        // Pre-llenar datos si el cliente está logueado
+        const cliente = JSON.parse(localStorage.getItem('cliente'));
+        if (cliente) {
+            document.getElementById('cita-nombre').value = cliente.nombre + " " + (cliente.apellido || '');
+            document.getElementById('cita-email').value = cliente.email;
+            document.getElementById('cita-telefono').value = cliente.telefono;
+        }
+    });
+
+    // 2. Cargar la lista de servicios (tu función existente)
+    async function cargarServicios() {
+        const container = document.getElementById('servicios-container');
+        container.innerHTML = '<p class="mensaje-info">Cargando servicios disponibles...</p>';
+        try {
+            const response = await fetch('/api/servicios');
+            if (!response.ok && response.status !== 204) throw new Error(`Error ${response.status}`);
+
+            const servicios = await response.json();
+            container.innerHTML = '';
+
+            servicios.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'servicio-card';
+
+                // --- MODIFICACIÓN: Pasamos más datos al botón agendar ---
+                card.innerHTML = `
+                    <div class="servicio-info">
+                        <span class="tipo-servicio">${s.nombreTipo}</span>
+                        <h3>${s.nombre}</h3>
+                        <p>${s.descripcion}</p>
+                    </div>
+                    <div class="servicio-footer">
+                        <span class="servicio-precio">$${s.precioBase.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                        <button class="boton-agendar"
+                            onclick="abrirModalAgenda(${s.idServicio}, '${s.nombre}')">
+                            Agendar Cita
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+        } catch (error) {
+            console.error('Error al cargar servicios:', error);
+            container.innerHTML = '<p class="mensaje-error">Error al conectar con el servidor.</p>';
+        }
+    }
+
+    // 3. Abrir el modal y pre-llenar datos
+    function abrirModalAgenda(idServicio, nombreServicio) {
+        inputIdServicio.value = idServicio;
+        inputNombreServicio.value = nombreServicio;
+        modalAgenda.style.display = 'flex';
+    }
+
+    // 4. Cerrar el modal
+    function cerrarModalAgenda(event) {
+        if (!event || event.target.id === 'modal-agenda' || event.target.classList.contains('modal-close')) {
+            modalAgenda.style.display = 'none';
+        }
+    }
+
+    // 5. Función para ENVIAR la cita
+    async function confirmarCita() {
+        // Recolectar datos del formulario
+        const clienteLogueado = JSON.parse(localStorage.getItem('cliente'));
+
+        const cita = {
+            idServicio: parseInt(inputIdServicio.value),
+            idCliente: clienteLogueado ? clienteLogueado.idCliente : null,
+            nombreCliente: document.getElementById('cita-nombre').value,
+            emailCliente: document.getElementById('cita-email').value,
+            telefonoCliente: document.getElementById('cita-telefono').value,
+            vehiculoInfo: document.getElementById('cita-vehiculo').value,
+            vehiculoAnio: parseInt(document.getElementById('cita-anio').value || 0),
+            fechaCita: document.getElementById('cita-fecha').value,
+            horaCita: document.getElementById('cita-hora').value,
+            comentarios: document.getElementById('cita-comentarios').value
+        };
+
+        // Validaciones (muy simples)
+        if (!cita.nombreCliente || !cita.emailCliente || !cita.telefonoCliente || !cita.fechaCita || !cita.horaCita) {
+            alert("Por favor, complete todos los campos obligatorios (Nombre, Email, Teléfono, Fecha y Hora).");
+            return;
+        }
+
+        try {
+            // Llamar a la nueva API de citas
+            const response = await fetch('/api/citas/agendar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cita) // Envía el objeto cita como JSON
+            });
+
+            if (response.ok) {
+                alert('¡Cita agendada con éxito! Nos pondremos en contacto contigo para confirmar.');
+                cerrarModalAgenda();
+            } else {
+                const errorTexto = await response.text();
+                alert(`Error al agendar la cita: ${errorTexto}`);
+            }
+        } catch (error) {
+            console.error("Error al agendar:", error);
+            alert("Error de conexión al intentar agendar. Por favor, intente más tarde.");
+        }
+    }
+</script>
+</body>
+</html>

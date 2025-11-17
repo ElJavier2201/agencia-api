@@ -3,179 +3,600 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo - Agencia de Autos</title>
+    <title>Portal de Clientes - Agencia</title>
     <style>
-        /* Estilos Generales */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f7f6;
-            color: #34495e; /* Texto principal */
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50; /* Azul oscuro */
-            border-bottom: 3px solid #3498db; /* Azul primario */
-            padding-bottom: 10px;
-        }
+        /* --- ESTILOS GENERALES --- */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; color: #34495e; margin: 0; }
+        h1 { text-align: center; color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; margin: 20px; }
+        .container { padding: 20px; max-width: 1400px; margin: 0 auto; }
+        .mensaje-info, .mensaje-error { font-size: 1.2em; text-align: center; padding: 30px; }
+        .mensaje-error { color: red; font-weight: bold; }
+        button { cursor: pointer; }
 
-        /* Contenedor de las tarjetas */
-        #catalogo-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 25px; /* Espacio entre tarjetas */
-            margin-top: 30px;
-        }
+        /* --- 1. ESTILOS DEL HEADER --- */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background-color: #34495e; color: white; }
+        header .logo { font-size: 1.5em; font-weight: bold; }
+        header nav a { color: white; text-decoration: none; margin-left: 20px; font-weight: 500; cursor: pointer; }
+        header nav a:hover { color: #3498db; }
+        .boton-login { background-color: #3498db; padding: 8px 15px; border-radius: 5px; }
+        .boton-login:hover { background-color: #2980b9; }
 
-        /* Estilo de cada Tarjeta de Vehículo */
-        .vehiculo-card {
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
-            width: 320px;
-            overflow: hidden; /* Para que la imagen respete los bordes redondeados */
-            transition: all 0.3s ease;
-        }
-        .vehiculo-card:hover {
-            transform: translateY(-5px); /* Efecto "levantar" */
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
-        }
+        /* --- 2. ESTILOS PARA FILTROS --- */
+        #filtros-container { background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.06); margin-bottom: 30px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .filtro-grupo { display: flex; flex-direction: column; }
+        .filtro-grupo label { font-weight: bold; font-size: 0.9em; margin-bottom: 5px; color: #555; }
+        .filtro-grupo input, .filtro-grupo select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; }
 
-        /* Imagen del Vehículo */
-        .vehiculo-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover; /* Asegura que la imagen cubra el espacio sin deformarse */
-        }
-
-        /* Contenido de la tarjeta (texto) */
-        .card-info {
-            padding: 20px;
-        }
-        .card-info h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #3498db; /* Azul primario */
-            font-size: 1.4em;
-        }
-        .precio {
-            font-size: 1.6em;
-            font-weight: bold;
-            color: #2ecc71; /* Verde */
-            margin-top: 15px;
-        }
-        .detalles {
-            font-size: 0.9em;
-            color: #7f8c8d; /* Texto secundario (gris) */
-            line-height: 1.5;
-        }
-
-        /* "Etiqueta" para el estado (Nuevo, Usado) */
-        .estado {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
+        /* --- 3. ESTILOS DEL CATÁLOGO --- */
+        #catalogo-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 25px; margin-top: 30px; }
+        .vehiculo-card { background-color: #ffffff; border-radius: 12px; box-shadow: 0 6px 12px rgba(0,0,0,0.08); width: 320px; overflow: hidden; transition: all 0.3s ease; }
+        .vehiculo-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.12); }
+        .card-imagen-link { display: block; width: 100%; height: 200px; overflow: hidden; }
+        .card-imagen-link img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .vehiculo-card:hover .card-imagen-link img { transform: scale(1.05); }
+        .card-info { padding: 20px; }
+        .card-info h3 { margin-top: 0; margin-bottom: 10px; color: #3498db; font-size: 1.4em; }
+        .precio { font-size: 1.6em; font-weight: bold; color: #2ecc71; margin-top: 15px; }
+        .detalles { font-size: 0.9em; color: #7f8c8d; line-height: 1.5; }
+        .estado { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.8em; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
         .estado.nuevo { background-color: #e0f7fa; color: #007bff; }
         .estado.usado { background-color: #fff8e1; color: #f57c00; }
         .estado.reservado { background-color: #ffebee; color: #d32f2f; }
+        .boton-cotizar { background-color: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-top: 15px; width: 100%; font-size: 1em; font-weight: bold; }
+        .boton-cotizar:hover { background-color: #2980b9; }
 
-        /* Mensajes de Carga o Error */
-        .mensaje-info {
-            font-size: 1.2em;
-            color: #7f8c8d;
+        /* --- 4. ESTILOS DE "MI CUENTA" --- */
+        #vista-mi-cuenta { display: none; /* Oculto por defecto */ }
+        .venta-acordeon { background: #fff; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; }
+        .venta-header { padding: 20px; font-size: 1.2em; font-weight: bold; cursor: pointer; background: #ecf0f1; }
+        .venta-pagos { padding: 0 20px 20px 20px; display: none; /* Oculto */ }
+        .venta-pagos table { width: 100%; border-collapse: collapse; }
+        .venta-pagos th, .venta-pagos td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+        .venta-pagos th { background: #f9f9f9; }
+        .pago-pendiente { color: #e67e22; font-weight: bold; }
+        .pago-pagado { color: #2ecc71; font-weight: bold; }
+
+        /* --- 5. ESTILOS PARA TODOS LOS MODALS (POP-UPS) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none; /* Oculto por defecto */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        .mensaje-error {
-            color: red;
-            font-weight: bold;
+        .modal-close {
+            position: absolute; top: 15px; right: 25px;
+            font-size: 2.5em; color: #fff; cursor: pointer; line-height: 1;
         }
+
+        /* Estilos específicos del Modal de Login */
+        .modal-login { background: white; padding: 30px; border-radius: 8px; width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal-login h2 { margin-top: 0; text-align: center; }
+        .modal-login .form-grupo { margin-bottom: 15px; }
+        .modal-login label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .modal-login input { width: 95%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .modal-login .modal-botones { display: flex; justify-content: space-between; margin-top: 20px; }
+        .modal-login button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        .modal-login #btn-login-submit { background-color: #3498db; color: white; }
+        .modal-login #btn-login-cancel { background-color: #e0e0e0; }
+        #login-error { color: red; text-align: center; margin-top: 10px; }
+
+        /* Estilos específicos del Modal de Detalles */
+        .modal-contenido { background: #fff; border-radius: 12px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; flex-wrap: wrap; }
+        .modal-imagen { flex-basis: 50%; min-width: 300px; }
+        .modal-imagen img { width: 100%; height: auto; border-radius: 12px 0 0 12px; }
+        .modal-info { flex-basis: 50%; min-width: 300px; padding: 30px; box-sizing: border-box; }
+        .modal-info h2 { margin-top: 0; color: #3498db; }
+        .modal-info .precio { font-size: 2em; }
+        .modal-info .detalles-lista { list-style: none; padding: 0; margin-top: 20px; }
+        .modal-info .detalles-lista li { padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 1.1em; }
+        .modal-info .detalles-lista li strong { color: #555; }
+        #modal-loader { text-align: center; padding: 100px; font-size: 1.5em; color: #7f8c8d; width: 100%; }
+
+        /* Estilos específicos del Modal de Cotización */
+        .modal-cotizador { background: white; padding: 30px; border-radius: 12px; width: 450px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; }
+        .modal-cotizador h2 { margin-top: 0; color: #3498db; }
+        .form-grupo { margin-bottom: 15px; }
+        .form-grupo label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-grupo input, .form-grupo select { width: 95%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1.1em; }
+        .form-grupo input[readonly] { background-color: #f4f4f4; cursor: not-allowed; }
+        #resultado-cotizacion { background-color: #f9f9f9; border-left: 5px solid #2ecc71; padding: 15px; margin-top: 20px; border-radius: 8px; text-align: center; }
+        #pago-mensual { font-size: 1.8em; font-weight: bold; color: #2ecc71; }
+
     </style>
 </head>
 <body>
 
-<h1>Nuestro Catálogo de Vehículos</h1>
+<header id="app-header">
+    <div class="logo">Agencia de Autos</div>
+    <nav id="nav-invitado">
+        <a onclick="mostrarCatalogo()" style="color: #3498db; font-weight: bold;">Catálogo</a>
+        <a href="servicios.html">Servicios</a>
+        <a onclick="mostrarLogin()" class="boton-login">Iniciar Sesión</a>
+    </nav>
+    <nav id="nav-cliente" style="display: none;">
+        <span id="span-bienvenida"></span>
+        <a onclick="mostrarCatalogo()" style="color: #3498db; font-weight: bold;">Catálogo</a>
+        <a href="servicios.html">Servicios</a>
+        <a onclick="mostrarMiCuenta()">Mi Cuenta</a>
+        <a onclick="cerrarSesion()">Cerrar Sesión</a>
+    </nav>
+</header>
 
-<div id="catalogo-container">
-    <p class="mensaje-info">Cargando vehículos disponibles...</p>
+<main class="container">
+
+    <div id="vista-catalogo">
+        <h1>Nuestro Catálogo de Vehículos</h1>
+
+        <div id="filtros-container">
+            <div class="filtro-grupo">
+                <label for="filtro-texto">Buscar por nombre:</label>
+                <input type="text" id="filtro-texto" placeholder="Ej: Mustang, Civic..." onkeyup="aplicarFiltros()">
+            </div>
+            <div class="filtro-grupo">
+                <label for="filtro-precio">Precio máximo:</label>
+                <input type="range" id="filtro-precio" min="50000" max="2000000" step="10000" value="2000000" oninput="aplicarFiltros()">
+            </div>
+            <div class="filtro-grupo">
+                <label id="label-precio-max">$ 2,000,000</label>
+            </div>
+            <div class="filtro-grupo">
+                <label for="filtro-estado">Estado:</label>
+                <select id="filtro-estado" onchange="aplicarFiltros()">
+                    <option value="todos">Todos</option>
+                    <option value="nuevo">Nuevo</option>
+                    <option value="usado">Usado</option>
+                    <option value="reservado">Reservado</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="catalogo-container">
+            <p class="mensaje-info">Cargando vehículos disponibles...</p>
+        </div>
+    </div>
+
+    <div id="vista-mi-cuenta">
+        <h1>Mi Estado de Cuenta</h1>
+        <div id="cuenta-container">
+        </div>
+    </div>
+
+</main>
+
+<div id="modal-login" class="modal-overlay" onclick="cerrarLogin(event)">
+    <div class="modal-login">
+        <span class="modal-close" onclick="cerrarLogin()">&times;</span>
+        <h2>Login de Cliente</h2>
+        <div id="login-error"></div>
+        <div class="form-grupo">
+            <label for="txt-usuario">Usuario:</label>
+            <input type="text" id="txt-usuario" placeholder="Ej: juanp">
+        </div>
+        <div class="form-grupo">
+            <label for="txt-password">Contraseña:</label>
+            <input type="password" id="txt-password">
+        </div>
+        <div class="modal-botones">
+            <button id="btn-login-cancel" onclick="cerrarLogin()">Cancelar</button>
+            <button id="btn-login-submit" onclick="intentarLogin()">Ingresar</button>
+        </div>
+    </div>
 </div>
 
-<script>
-    // --- ¡AQUÍ OCURRE LA MAGIA! ---
+<div id="modal-vehiculo-overlay" class="modal-overlay" onclick="cerrarDetalleVehiculo(event)">
+    <span class="modal-close" onclick="cerrarDetalleVehiculo()">&times;</span>
+    <div id="modal-vehiculo" class="modal-contenido">
+        <div id="modal-loader">Cargando...</div>
+    </div>
+</div>
 
-    // 1. Espera a que la página HTML esté lista
+<div id="modal-cotizacion" class="modal-overlay" onclick="cerrarCotizador(event)">
+    <div class="modal-cotizador">
+        <span class="modal-close" onclick="cerrarCotizador()">&times;</span>
+        <h2 id="cotizador-titulo">Simular Cotización</h2>
+
+        <div class="form-grupo">
+            <label for="cot-precio">Precio del Vehículo:</label>
+            <input type="text" id="cot-precio" readonly>
+        </div>
+        <div class="form-grupo">
+            <label for="cot-enganche">Enganche (Mín. 20%):</label>
+            <input type="number" id="cot-enganche" oninput="validarEnganche()">
+        </div>
+        <div class="form-grupo">
+            <label for="cot-plazo">Plazo (Meses):</label>
+            <select id="cot-plazo">
+                <option value="12">12 Meses</option>
+                <option value="24">24 Meses</option>
+                <option value="36">36 Meses</option>
+                <option value="48">48 Meses</option>
+            </select>
+        </div>
+
+        <button class_name="boton-cotizar" style="width: 100%; font-size: 1em; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 5px;" onmouseover="this.style.backgroundColor='#2980b9'" onmouseout="this.style.backgroundColor='#3498db'" onclick="calcularCotizacion()">Calcular</button>
+
+        <div id="resultado-cotizacion" style="display: none;">
+            <p>Tu pago mensual estimado es:</p>
+            <div id="pago-mensual">$0.00</div>
+            <small id="detalle-cotizacion">Monto a financiar: $0.00</small>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // --- SCRIPT COMPLETO Y FUSIONADO ---
+
+    // Variable global para guardar la lista completa de vehículos
+    let vehiculosCompletos = [];
+
+    // Referencias a elementos
+    const headerInvitado = document.getElementById('nav-invitado');
+    const headerCliente = document.getElementById('nav-cliente');
+    const spanBienvenida = document.getElementById('span-bienvenida');
+    const vistaCatalogo = document.getElementById('vista-catalogo');
+    const vistaMiCuenta = document.getElementById('vista-mi-cuenta');
+    const catalogoContainer = document.getElementById('catalogo-container');
+
+    // Referencias a filtros
+    const filtroTexto = document.getElementById('filtro-texto');
+    const filtroPrecio = document.getElementById('filtro-precio');
+    const labelPrecio = document.getElementById('label-precio-max');
+    const filtroEstado = document.getElementById('filtro-estado');
+
+    // Referencias a Modals
+    const modalLogin = document.getElementById('modal-login');
+    const modalVehiculoOverlay = document.getElementById('modal-vehiculo-overlay');
+    const modalVehiculoContenido = document.getElementById('modal-vehiculo');
+    const modalCotizacion = document.getElementById('modal-cotizacion');
+    const cotPrecio = document.getElementById('cot-precio');
+    const cotEnganche = document.getElementById('cot-enganche');
+    const cotPlazo = document.getElementById('cot-plazo');
+    const resultadoDiv = document.getElementById('resultado-cotizacion');
+    const pagoMensualLabel = document.getElementById('pago-mensual');
+    const detalleCotizacionLabel = document.getElementById('detalle-cotizacion');
+    const cotizadorTitulo = document.getElementById('cotizador-titulo');
+
+    let precioBaseActual = 0; // Guardará el precio del auto para el cotizador
+
+    // 1. Al cargar la página
     document.addEventListener("DOMContentLoaded", () => {
-        cargarVehiculos();
+        cargarVehiculos(); // Carga el catálogo siempre
+        actualizarHeader(); // Revisa el estado de login
     });
 
-    // 2. Función para llamar a tu API
-    async function cargarVehiculos() {
-        const container = document.getElementById('catalogo-container');
+    // ===================================
+    // FUNCIONES DE LOGIN Y NAVEGACIÓN
+    // ===================================
+
+    function actualizarHeader() {
+        const clienteGuardado = localStorage.getItem('cliente');
+        if (clienteGuardado) {
+            const cliente = JSON.parse(clienteGuardado);
+            spanBienvenida.innerText = `Hola, ${cliente.nombre}`;
+            headerInvitado.style.display = 'none';
+            headerCliente.style.display = 'block';
+        } else {
+            headerInvitado.style.display = 'block';
+            headerCliente.style.display = 'none';
+        }
+    }
+
+    function mostrarCatalogo() {
+        vistaCatalogo.style.display = 'block';
+        vistaMiCuenta.style.display = 'none';
+    }
+
+    async function mostrarMiCuenta() {
+        const cliente = JSON.parse(localStorage.getItem('cliente'));
+        if (!cliente) {
+            mostrarLogin();
+            return;
+        }
+
+        vistaCatalogo.style.display = 'none';
+        vistaMiCuenta.style.display = 'block';
+
+        const container = document.getElementById('cuenta-container');
+        container.innerHTML = '<p class="mensaje-info">Cargando tu información financiera...</p>';
 
         try {
-            // 3. ¡LA LLAMADA A LA API! Llama al endpoint que creaste en el Paso 6
-            //    (No necesitas poner "http://localhost:8080" porque están en el mismo servidor)
-            const response = await fetch('/api/vehiculos/catalogo');
+            // Llama a la API de "ventas-financiadas"
+            const response = await fetch(`/api/clientes/${cliente.idCliente}/ventas-financiadas`);
+            const ventas = await response.json();
 
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: No se pudo conectar a la API.`);
-            }
-
-            const vehiculos = await response.json();
-            container.innerHTML = ''; // Limpia el mensaje "Cargando..."
-
-            if (vehiculos.length === 0) {
-                container.innerHTML = '<p class="mensaje-info">No hay vehículos disponibles en este momento.</p>';
+            if (ventas.length === 0) {
+                container.innerHTML = '<p class="mensaje-info">No tienes financiamientos activos.</p>';
                 return;
             }
 
-            // 4. Recorre el JSON (la lista de vehículos)
-            vehiculos.forEach(v => {
-                // Crea una tarjeta (div)
-                const card = document.createElement('div');
-                card.className = 'vehiculo-card';
+            container.innerHTML = ''; // Limpia
 
-                // Define la ruta de la imagen (v.imagenPath viene del modelo/Vehiculo.java)
-                // Spring sirve todo en "static" desde la raíz "/"
-                const imgPath = v.imagenPath ? `/imagenes/${v.imagenPath}` : '/imagenes/no_image.png';
+            for (const venta of ventas) {
+                const ventaDiv = document.createElement('div');
+                ventaDiv.className = 'venta-acordeon';
 
-                // Asigna la clase de estado (ej: "nuevo", "usado")
-                const estadoClass = v.estado.toLowerCase();
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'venta-header';
+                headerDiv.innerText = `Vehículo: ${venta.nombreVehiculo} (Plazo: ${venta.plazoMeses} meses)`;
 
-                // Inserta el HTML de la tarjeta
-                card.innerHTML = `
-                    <img src="${imgPath}" alt="${v.nombreMarca}" onerror="this.src='/imagenes/no_image.png'">
-                    <div class="card-info">
-                        <span class="estado ${estadoClass}">${v.estado}</span>
-                        <h3>${v.nombreMarca} ${v.nombreModelo}</h3>
-                        <p class="detalles">
-                            <strong>Año:</strong> ${v.anio} | <strong>Color:</strong> ${v.color}<br>
-                            <strong>Km:</strong> ${v.kilometraje.toLocaleString('es-MX')}
-                        </p>
-                        <div class="precio">
-                            $${v.precio.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
-                    </div>
-                `;
+                const pagosDiv = document.createElement('div');
+                pagosDiv.className = 'venta-pagos';
+                pagosDiv.id = `pagos-venta-${venta.idVenta}`;
+                pagosDiv.innerHTML = '<p>Cargando pagos...</p>';
 
-                // Añade la tarjeta al contenedor
-                container.appendChild(card);
-            });
+                headerDiv.onclick = () => togglePagos(venta.idVenta);
+
+                ventaDiv.appendChild(headerDiv);
+                ventaDiv.appendChild(pagosDiv);
+                container.appendChild(ventaDiv);
+            }
 
         } catch (error) {
-            // Si la API falla (ej. si olvidaste iniciarla), muestra un error
-            console.error('Error al cargar el catálogo:', error);
-            container.innerHTML = `<p class="mensaje-error">
-                                    Error al cargar el catálogo. Verifique que el servidor API esté encendido.<br>
-                                    (${error.message})
-                                   </p>`;
+            container.innerHTML = '<p class="mensaje-error">Error al cargar tu cuenta.</p>';
         }
     }
+
+    function mostrarLogin() {
+        document.getElementById('login-error').innerText = '';
+        document.getElementById('txt-usuario').value = '';
+        document.getElementById('txt-password').value = '';
+        modalLogin.style.display = 'flex';
+    }
+
+    function cerrarLogin(event) {
+        if (!event || event.target.id === 'modal-login' || event.target.id === 'btn-login-cancel') {
+            modalLogin.style.display = 'none';
+        }
+    }
+
+    async function intentarLogin() {
+        const usuario = document.getElementById('txt-usuario').value;
+        const password = document.getElementById('txt-password').value;
+        const errorLabel = document.getElementById('login-error');
+
+        errorLabel.innerText = '';
+
+        try {
+            // Llama a la API de LOGIN
+            const response = await fetch('/api/clientes/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario: usuario, password: password })
+            });
+
+            if (response.ok) {
+                const cliente = await response.json();
+                localStorage.setItem('cliente', JSON.stringify(cliente));
+                actualizarHeader();
+                cerrarLogin();
+                mostrarMiCuenta();
+            } else {
+                errorLabel.innerText = 'Usuario o contraseña incorrectos.';
+            }
+        } catch (error) {
+            errorLabel.innerText = 'Error al conectar con el servidor.';
+        }
+    }
+
+    function cerrarSesion() {
+        localStorage.removeItem('cliente');
+        actualizarHeader();
+        mostrarCatalogo();
+    }
+
+    async function togglePagos(idVenta) {
+        const pagosDiv = document.getElementById(`pagos-venta-${idVenta}`);
+        if (pagosDiv.style.display === 'block') {
+            pagosDiv.style.display = 'none';
+            return;
+        }
+        pagosDiv.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/clientes/ventas/${idVenta}/pagos`);
+            const pagos = await response.json();
+
+            let tablaHTML = `
+                <table>
+                    <tr><th># Pago</th><th>Concepto</th><th>Monto</th><th>Vencimiento</th><th>Estado</th></tr>
+            `;
+            pagos.forEach(p => {
+                const estadoClass = p.estado.toLowerCase() === 'pagado' ? 'pago-pagado' : 'pago-pendiente';
+                tablaHTML += `
+                    <tr>
+                        <td>${p.numeroPago === 0 ? 'Enganche' : p.numeroPago}</td>
+                        <td>${p.concepto}</td>
+                        <td>$${p.monto.toFixed(2)}</td>
+                        <td>${p.fechaVencimiento || 'N/A'}</td>
+                        <td class="${estadoClass}">${p.estado.toUpperCase()}</td>
+                    </tr>
+                `;
+            });
+            tablaHTML += '</table>';
+            pagosDiv.innerHTML = tablaHTML;
+
+        } catch (error) {
+            pagosDiv.innerHTML = '<p class="mensaje-error">Error al cargar los pagos.</p>';
+        }
+    }
+
+    // ===================================
+    // FUNCIONES DE CATÁLOGO Y FILTROS
+    // ===================================
+
+    async function cargarVehiculos() {
+        catalogoContainer.innerHTML = '<p class="mensaje-info">Cargando vehículos disponibles...</p>';
+        try {
+            const response = await fetch('/api/vehiculos/catalogo');
+            if (!response.ok) throw new Error(`Error ${response.status}`);
+
+            vehiculosCompletos = await response.json();
+            renderizarCatalogo(vehiculosCompletos);
+        } catch (error) {
+            console.error('Error al cargar el catálogo:', error);
+            catalogoContainer.innerHTML = `<p class="mensaje-error">Error al cargar el catálogo.</p>`;
+        }
+    }
+
+    function aplicarFiltros() {
+        const texto = filtroTexto.value.toLowerCase();
+        const precio = parseFloat(filtroPrecio.value);
+        const estado = filtroEstado.value;
+
+        labelPrecio.innerText = `$ ${precio.toLocaleString('es-MX')}`;
+
+        const vehiculosFiltrados = vehiculosCompletos.filter(v => {
+            const nombreCompleto = `${v.nombreMarca} ${v.nombreModelo}`.toLowerCase();
+            const pasaTexto = nombreCompleto.includes(texto);
+            const pasaPrecio = v.precio <= precio;
+            const pasaEstado = (estado === 'todos') || (v.estado.toLowerCase() === estado);
+            return pasaTexto && pasaPrecio && pasaEstado;
+        });
+
+        renderizarCatalogo(vehiculosFiltrados);
+    }
+
+    function renderizarCatalogo(listaDeVehiculos) {
+        catalogoContainer.innerHTML = '';
+        if (listaDeVehiculos.length === 0) {
+            catalogoContainer.innerHTML = '<p class="mensaje-info">No se encontraron vehículos con esos filtros.</p>';
+            return;
+        }
+
+        listaDeVehiculos.forEach(v => {
+            const card = document.createElement('div');
+            card.className = 'vehiculo-card';
+
+            const imgPath = v.imagenPath ? `/imagenes/${v.imagenPath}` : '/imagenes/no_image.png';
+            const estadoClass = v.estado.toLowerCase();
+
+            card.innerHTML = `
+                <a onclick="mostrarDetalleVehiculo(${v.idVehiculo})" class="card-imagen-link">
+                    <img src="${imgPath}" alt="${v.nombreMarca}" onerror="this.src='/imagenes/no_image.png'">
+                </a>
+                <div class="card-info">
+                    <span class="estado ${estadoClass}">${v.estado}</span>
+                    <h3>${v.nombreMarca} ${v.nombreModelo}</h3>
+                    <p class="detalles">
+                        <strong>Año:</strong> ${v.anio} | <strong>Color:</strong> ${v.color}<br>
+                        <strong>Km:</strong> ${v.kilometraje.toLocaleString('es-MX')}
+                    </p>
+                    <div class="precio">
+                        $${v.precio.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                    <button class="boton-cotizar"
+                        onclick="abrirCotizador(${v.precio}, '${v.nombreMarca} ${v.nombreModelo}')">
+                        Simular Cotización
+                    </button>
+                </div>
+            `;
+            catalogoContainer.appendChild(card);
+        });
+    }
+
+    // ===================================
+    // FUNCIONES DE MODALS (DETALLES Y COTIZACIÓN)
+    // ===================================
+
+    async function mostrarDetalleVehiculo(idVehiculo) {
+        modalVehiculoOverlay.style.display = 'flex';
+        modalVehiculoContenido.innerHTML = '<div id="modal-loader">Cargando...</div>';
+
+        try {
+            const response = await fetch(`/api/vehiculos/${idVehiculo}`);
+            if (!response.ok) throw new Error('No se encontró el vehículo');
+
+            const v = await response.json();
+            const imgPath = v.imagenPath ? `/imagenes/${v.imagenPath}` : '/imagenes/no_image.png';
+
+            modalVehiculoContenido.innerHTML = `
+                <div class="modal-imagen">
+                    <img src="${imgPath}" alt="${v.nombreMarca}" onerror="this.src='/imagenes/no_image.png'">
+                </div>
+                <div class="modal-info">
+                    <h2>${v.nombreMarca} ${v.nombreModelo}</h2>
+                    <span class="estado ${v.estado.toLowerCase()}">${v.estado}</span>
+                    <div class="precio">$${v.precio.toLocaleString('es-MX')}</div>
+                    <ul class="detalles-lista">
+                        <li><strong>Año:</strong> ${v.anio}</li>
+                        <li><strong>Color:</strong> ${v.color}</li>
+                        <li><strong>Kilometraje:</strong> ${v.kilometraje.toLocaleString('es-MX')} km</li>
+                        <li><strong>VIN:</strong> ${v.numeroSerie}</li>
+                    </ul>
+                </div>
+            `;
+        } catch (error) {
+            modalVehiculoContenido.innerHTML = `<p class="mensaje-error" style="padding: 50px;">Error al cargar los detalles.</p>`;
+        }
+    }
+
+    function cerrarDetalleVehiculo(event) {
+        if (!event || event.target.id === 'modal-vehiculo-overlay') {
+            modalVehiculoOverlay.style.display = 'none';
+        }
+    }
+
+    function abrirCotizador(precio, nombreVehiculo) {
+        // Detener la propagación del evento para no disparar el modal de detalles
+        event.stopPropagation();
+
+        precioBaseActual = precio;
+        const engancheMinimo = precio * 0.20;
+
+        cotizadorTitulo.innerText = `Simular - ${nombreVehiculo}`;
+        cotPrecio.value = `$${precio.toLocaleString('es-MX')}`;
+        cotEnganche.value = engancheMinimo.toFixed(0);
+        cotEnganche.min = engancheMinimo.toFixed(0);
+
+        resultadoDiv.style.display = 'none';
+        modalCotizacion.style.display = 'flex';
+    }
+
+    function cerrarCotizador(event) {
+        if (!event || event.target.id === 'modal-cotizacion' || event.target.classList.contains('modal-close')) {
+            modalCotizacion.style.display = 'none';
+        }
+    }
+
+    function validarEnganche() {
+        const engancheMinimo = precioBaseActual * 0.20;
+        if (parseFloat(cotEnganche.value) < engancheMinimo) {
+            cotEnganche.style.borderColor = 'red';
+        } else {
+            cotEnganche.style.borderColor = '#ccc';
+        }
+    }
+
+    async function calcularCotizacion() {
+        const precio = precioBaseActual;
+        const enganche = parseFloat(cotEnganche.value);
+        const plazo = parseInt(cotPlazo.value);
+
+        if (enganche < precio * 0.20) {
+            alert('El enganche debe ser de al menos el 20%.');
+            cotEnganche.style.borderColor = 'red';
+            return;
+        }
+
+        const url = `/api/cotizar/simular?precio=${precio}&enganche=${enganche}&plazo=${plazo}`;
+
+        try {
+            const response = await fetch(url);
+            const cotizacion = await response.json();
+
+            pagoMensualLabel.innerText = `$${cotizacion.pagoMensual.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            detalleCotizacionLabel.innerText = `Monto a financiar: $${cotizacion.montoFinanciado.toLocaleString('es-MX')} | Total a pagar: $${cotizacion.totalAPagar.toLocaleString('es-MX')}`;
+            resultadoDiv.style.display = 'block';
+
+        } catch (error) {
+            console.error("Error al cotizar:", error);
+            alert("Error al conectar con el simulador. Intente más tarde.");
+        }
+    }
+
 </script>
 </body>
 </html>

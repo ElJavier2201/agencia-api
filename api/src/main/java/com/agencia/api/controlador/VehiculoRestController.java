@@ -6,6 +6,7 @@ import com.agencia.api.dao.VehiculoDAO;
 import com.agencia.api.modelo.Vehiculo;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
@@ -30,5 +31,18 @@ public class VehiculoRestController {
     public List<Vehiculo> getCatalogoDisponible() {
         // ¡Reutilizando tu código DAO existente!
         return vehiculoDAO.listarVehiculosDisponibles();
+    }
+
+    /**
+     * Este metodo responde a:
+     * GET http://localhost:8080/api/vehiculos/1  (o /2, /3, etc.)
+     */
+    @GetMapping("/{id}")
+    public Vehiculo getVehiculoPorId(@PathVariable int id) {
+
+        // (En un futuro, si vehiculo es null,
+        //  devolveríamos un ResponseEntity.notFound())
+
+        return vehiculoDAO.buscarPorId(id);
     }
 }

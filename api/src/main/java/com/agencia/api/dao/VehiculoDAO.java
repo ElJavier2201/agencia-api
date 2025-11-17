@@ -94,7 +94,6 @@ public class VehiculoDAO {
             ps.setDouble(5, v.getPrecio());
             ps.setString(6, v.getEstado());
 
-            // ✅ AGREGADO: Actualizar imagen_path (puede ser NULL)
             if (v.getImagenPath() != null && !v.getImagenPath().isEmpty()) {
                 ps.setString(7, v.getImagenPath());
             } else {
@@ -131,6 +130,34 @@ public class VehiculoDAO {
         }
     }
 
+    /**
+     * Busca un vehículo específico por su ID.
+     * Incluye los JOINs para nombres de marca y modelo.
+     */
+    public Vehiculo buscarPorId(int idVehiculo) {
+        Vehiculo vehiculo = null;
+        String sql = "SELECT v.*, m.nombre_modelo, ma.nombre_marca " +
+                "FROM vehiculos v " +
+                "JOIN modelos m ON v.id_modelo = m.id_modelo " +
+                "JOIN marcas ma ON m.id_marca = ma.id_marca " +
+                "WHERE v.id_vehiculo = ?";
+
+        try (Connection conn = ConexionDB.getConexion();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, idVehiculo);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    vehiculo = mapearVehiculo(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al buscar vehículo por ID: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return vehiculo;
+    }
     /**
      * Helper para convertir un ResultSet en un objeto Vehiculo (incluyendo JOINs).
      */

@@ -41,7 +41,7 @@ public class Configuracion {
                     .getResourceAsStream("db.properties");
 
             if (inputStream == null) {
-                throw new IOException("No se encontró el archivo db.properties en recursos/");
+                throw new IOException("No se encontró el archivo 'db.properties' en src/main/resources/");
             }
 
             properties.load(inputStream);
